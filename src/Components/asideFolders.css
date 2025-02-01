@@ -1,0 +1,38 @@
+.aside-folders {
+  width: 200px;
+  padding: 20px;
+  border-right: 1px solid #e0e0e0;
+  background-color: #f9f9f9;
+  display: grid;
+  align-items: center;
+}
+
+.create-message-button {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.create-message-button:hover {
+  background-color: #0056b3;
+}
+
+.aside-folders ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.aside-folders li {
+  padding: 10px 0;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.aside-folders li:hover {
+  background-color: #e0e0e0;
+}
