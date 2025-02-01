@@ -18,11 +18,23 @@
   margin: 0;
 }
 
+
+.to-email{
+  margin-bottom: 10px;
+}
+
 .dropdown li {
   padding: 8px;
   cursor: pointer;
+  display: block;
 }
 
 .dropdown li:hover {
   background-color: #f0f0f0;
+}
+
+.buttonDelete{
+  width: 100px;
+  background-color: #007bff!important;
+  margin-left: 10px;
 }

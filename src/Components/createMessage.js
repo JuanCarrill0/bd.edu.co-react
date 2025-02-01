@@ -29,7 +29,7 @@ function CreateMessage({ onClose }) {
 
   const handleToChange = (e) => {
     const value = e.target.value;
-    setTo([value]);
+    setTo(value ? value.split(',') : []); // Update the state with the input value, split by commas or set to empty array
     if (value) {
       const filtered = contacts.filter(contact =>
         contact[2].toLowerCase().includes(value.toLowerCase())
@@ -39,12 +39,13 @@ function CreateMessage({ onClose }) {
     } else {
       setFilteredContacts(contacts);
       setShowDropdown(false);
-      setTo(value)
     }
   };
 
   const handleContactClick = (email) => {
-    setTo(prevTo => [...prevTo, email]);
+    if (!to.includes(email)) {
+      setTo(prevTo => [...prevTo, email]);
+    }
     setShowDropdown(false);
   };
 
@@ -65,67 +66,70 @@ function CreateMessage({ onClose }) {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const idUsuario = user[0]; // Asumiendo que el ID del usuario está en la posición 0
-    const idMensaje = generateRandomMessageId();
     const idPais = user[2]; // Asumiendo que el ID del país está en la posición 2
     const idTipoCarpeta = "Env"; // Asumiendo un ID de tipo de carpeta fijo
     const idCategoria = "PRI"; // Asumiendo un ID de categoría fijo
     const fechaAccion = new Date().toISOString().split('T')[0]; // Fecha actual en formato YYYY-MM-DD
     const horaAccion = new Date().toISOString().split('T')[1].split('.')[0]; // Hora actual en formato HH:MM:SS
-
+  
     try {
-      console.log(to[0]);
-      // Buscar el contacto en la base de datos
-      let contactResult;
-      try {
-        contactResult = await getContact(to[0], idUsuario);
-        console.log('Contact found:', contactResult);
-      } catch (error) {
-        if (error.response && error.response.status === 404) {
-          console.log('Contact not found, creating new contact');
-          contactResult = await createContact(to[0], idUsuario);
-        } else {
-          throw error;
+      for (const recipient of to) {
+        console.log(recipient);
+        // Buscar el contacto en la base de datos
+        let contactResult;
+        try {
+          contactResult = await getContact(recipient, idUsuario);
+          console.log('Contact found:', contactResult);
+        } catch (error) {
+          if (error.response && error.response.status === 404) {
+            console.log('Contact not found, creating new contact');
+            await createContact(recipient, idUsuario);
+            // Vuelve a buscar el contacto después de crearlo
+            contactResult = await getContact(recipient, idUsuario);
+          } else {
+            throw error;
+          }
+        }
+        console.log('Contact found or created:', contactResult);
+  
+        if (contactResult.length !== 0 || contactResult !== undefined) {
+          // Enviar el mensaje
+          const idMensaje = generateRandomMessageId(); // Generar un ID de mensaje aleatorio
+          const response = await sendMessage({
+            idUsuario,
+            idMensaje,
+            idPais,
+            idTipoCarpeta,
+            idCategoria,
+            asunto: subject,
+            cuerpoMensaje: body,
+            fechaAccion,
+            horaAccion,
+            menIdUsuario: null,
+            menIdMensaje: null
+          });
+          console.log('Message sent successfully:', response);
+  
+          console.log('Destinatario:', contactResult[0]);
+  
+          // Guardar el destinatario
+          const destinatarioData = {
+            idPais,
+            idUsuario, // Asumiendo que el ID del usuario está en la posición 0 del contacto
+            idMensaje,
+            idTipoCopia: "CO", // Asumiendo un ID de tipo de copia fijo
+            consecContacto: contactResult[0][0] // Asumiendo que el ID del contacto está en la posición 0 del contacto
+          };
+          const destinatarioResponse = await saveDestinatario(destinatarioData);
+          console.log('Destinatario saved successfully:', destinatarioResponse);
         }
       }
-      console.log('Contact found or created:', contactResult);
-
-      if(contactResult.length !== 0 || contactResult!==undefined){
-        // Enviar el mensaje
-        const response = await sendMessage({
-          idUsuario,
-          idMensaje,
-          idPais,
-          idTipoCarpeta,
-          idCategoria,
-          asunto: subject,
-          cuerpoMensaje: body,
-          fechaAccion,
-          horaAccion,
-          menIdUsuario: null,
-          menIdMensaje: null
-        });
-        console.log('Message sent successfully:', response);
-
-        console.log('Destinatario:', contactResult[0]);
-        
-        // Guardar el destinatario
-        const destinatarioData = {
-          idPais,
-          idUsuario, // Asumiendo que el ID del usuario está en la posición 0 del contacto
-          idMensaje,
-          idTipoCopia: "CO", // Asumiendo un ID de tipo de copia fijo
-          consecContacto: contactResult[0][0] // Asumiendo que el ID del contacto está en la posición 0 del contacto
-        };
-        const destinatarioResponse = await saveDestinatario(destinatarioData);
-        console.log('Destinatario saved successfully:', destinatarioResponse);
-      }
-
+  
       onClose();
     } catch (error) {
       console.error('Error sending message or saving destinatario:', error);
     }
   };
-
 
   return (
     <div className="create-message-background">
@@ -135,11 +139,11 @@ function CreateMessage({ onClose }) {
           <div className="form-group">
             <label htmlFor="to">Para:</label>
             <div className="to-input">
-              {to.map(email => (
-                <span key={email} className="to-email">
+              {to.map((email, index) => (
+                <div key={`${email}-${index}`} className="to-email">
                   {email}
-                  <button type="button" onClick={() => handleRemoveContact(email)}>x</button>
-                </span>
+                  <button type="button" className='buttonDelete' onClick={() => handleRemoveContact(email)}>x</button>
+                </div>
               ))}
               <input
                 type="text"
