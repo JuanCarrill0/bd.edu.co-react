@@ -22,6 +22,15 @@ export const getContacts = async (email) => {
   }
 };
 
+export const createContact = async (correo, idUsuario) => {
+  try {
+    const response = await axios.post(`${API_URL}/api/createContact`, { correo, idUsuario });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const getUser = async (correoalterno) => {
   try {
     const response = await axios.get(`${API_URL}/api/getUser`, {
@@ -33,12 +42,12 @@ export const getUser = async (correoalterno) => {
   }
 };
 
-export const getContact = async (correoalterno) => {
+export const getContact = async (correoalterno, idUsuario) => {
   try {
     const response = await axios.get(`${API_URL}/api/getContact`, {
-      params: { correoalterno }
+      params: { correoalterno, idUsuario }
     });
-    return response.data.usuario;
+    return response.data;
   } catch (error) {
     throw error;
   }

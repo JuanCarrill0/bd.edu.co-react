@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getContacts, getContact, sendMessage, saveDestinatario } from '../Service/authService';
+import { getContacts, getContact, sendMessage, saveDestinatario, createContact } from '../Service/authService';
 import './createMessage.css';
 
 function CreateMessage({ onClose }) {
@@ -29,6 +29,7 @@ function CreateMessage({ onClose }) {
 
   const handleToChange = (e) => {
     const value = e.target.value;
+    setTo([value]);
     if (value) {
       const filtered = contacts.filter(contact =>
         contact[2].toLowerCase().includes(value.toLowerCase())
@@ -38,6 +39,7 @@ function CreateMessage({ onClose }) {
     } else {
       setFilteredContacts(contacts);
       setShowDropdown(false);
+      setTo(value)
     }
   };
 
@@ -50,10 +52,20 @@ function CreateMessage({ onClose }) {
     setTo(prevTo => prevTo.filter(contact => contact !== email));
   };
 
+  const generateRandomMessageId = () => {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const length = Math.floor(Math.random() * 5) + 1; // Random length between 1 and 5
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const idUsuario = user[0]; // Asumiendo que el ID del usuario está en la posición 0
-    const idMensaje = "002"; // Generar un ID de mensaje único
+    const idMensaje = generateRandomMessageId();
     const idPais = user[2]; // Asumiendo que el ID del país está en la posición 2
     const idTipoCarpeta = "Env"; // Asumiendo un ID de tipo de carpeta fijo
     const idCategoria = "PRI"; // Asumiendo un ID de categoría fijo
@@ -63,43 +75,50 @@ function CreateMessage({ onClose }) {
     try {
       console.log(to[0]);
       // Buscar el contacto en la base de datos
-      const contactResult = await getContact(to[0]);
-
-      // Verificar si el contacto existe
-      if (!contactResult || contactResult.length === 0) {
-        console.error('Contact not found');
-        return;
+      let contactResult;
+      try {
+        contactResult = await getContact(to[0], idUsuario);
+        console.log('Contact found:', contactResult);
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          console.log('Contact not found, creating new contact');
+          contactResult = await createContact(to[0], idUsuario);
+        } else {
+          throw error;
+        }
       }
+      console.log('Contact found or created:', contactResult);
 
-      console.log('Contact found:', contactResult);
+      if(contactResult.length !== 0 || contactResult!==undefined){
+        // Enviar el mensaje
+        const response = await sendMessage({
+          idUsuario,
+          idMensaje,
+          idPais,
+          idTipoCarpeta,
+          idCategoria,
+          asunto: subject,
+          cuerpoMensaje: body,
+          fechaAccion,
+          horaAccion,
+          menIdUsuario: null,
+          menIdMensaje: null
+        });
+        console.log('Message sent successfully:', response);
 
-      // Enviar el mensaje
-      const response = await sendMessage({
-        idUsuario,
-        idMensaje,
-        idPais,
-        idTipoCarpeta,
-        idCategoria,
-        asunto: subject,
-        cuerpoMensaje: body,
-        fechaAccion,
-        horaAccion,
-        menIdUsuario: null,
-        menIdMensaje: null
-      });
-      console.log('Message sent successfully:', response);
-      console.log('Destinatario:', contactResult[0][0]);
-      
-      // Guardar el destinatario
-      const destinatarioData = {
-        idPais,
-        idUsuario, // Asumiendo que el ID del usuario está en la posición 0 del contacto
-        idMensaje,
-        idTipoCopia: "CO", // Asumiendo un ID de tipo de copia fijo
-        consecContacto: contactResult[0][0] // Asumiendo que el ID del contacto está en la posición 0 del contacto
-      };
-      const destinatarioResponse = await saveDestinatario(destinatarioData);
-      console.log('Destinatario saved successfully:', destinatarioResponse);
+        console.log('Destinatario:', contactResult[0]);
+        
+        // Guardar el destinatario
+        const destinatarioData = {
+          idPais,
+          idUsuario, // Asumiendo que el ID del usuario está en la posición 0 del contacto
+          idMensaje,
+          idTipoCopia: "CO", // Asumiendo un ID de tipo de copia fijo
+          consecContacto: contactResult[0][0] // Asumiendo que el ID del contacto está en la posición 0 del contacto
+        };
+        const destinatarioResponse = await saveDestinatario(destinatarioData);
+        console.log('Destinatario saved successfully:', destinatarioResponse);
+      }
 
       onClose();
     } catch (error) {
