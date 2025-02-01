@@ -29,7 +29,6 @@ function CreateMessage({ onClose }) {
 
   const handleToChange = (e) => {
     const value = e.target.value;
-    setTo(value ? value.split(',') : []); // Update the state with the input value, split by commas or set to empty array
     if (value) {
       const filtered = contacts.filter(contact =>
         contact[2].toLowerCase().includes(value.toLowerCase())
@@ -42,11 +41,25 @@ function CreateMessage({ onClose }) {
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const value = e.target.value.trim();
+      if (value && !to.includes(value)) {
+        setTo(prevTo => [...prevTo, value]);
+        e.target.value = ''; // Clear the input
+        setFilteredContacts([]); // Clear the filtered contacts
+        setShowDropdown(false); // Hide the dropdown
+      }
+    }
+  };
+
   const handleContactClick = (email) => {
     if (!to.includes(email)) {
       setTo(prevTo => [...prevTo, email]);
     }
-    setShowDropdown(false);
+    setFilteredContacts([]); // Clear the filtered contacts
+    setShowDropdown(false); // Hide the dropdown
   };
 
   const handleRemoveContact = (email) => {
@@ -149,7 +162,13 @@ function CreateMessage({ onClose }) {
                 type="text"
                 id="to"
                 onChange={handleToChange}
-                onFocus={() => setShowDropdown(true)}
+                onKeyDown={handleKeyDown}
+                onFocus={(e) => {
+                  if (!e.target.value) {
+                    setFilteredContacts(contacts);
+                    setShowDropdown(true);
+                  }
+                }}
               />
             </div>
             {showDropdown && (
