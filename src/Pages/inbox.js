@@ -1,21 +1,26 @@
-import React, { useState, useEffect  } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ListMessaje from '../Components/listMessage';
 import AsideFolders from '../Components/asideFolders';
 import CreateMessage from '../Components/createMessage';
 import MessageDetail from '../Components/messageDetail';
+import { getinbox, getoutbox } from '../Service/authService';
 import './inbox.css';
 
 function Inbox() {
   const [selectedFolder, setSelectedFolder] = useState('recibidos');
   const [isCreatingMessage, setIsCreatingMessage] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState(null);
-
+  const [inbox, setInbox] = useState([]);
+  const [outbox, setOutbox] = useState([]);
   const [currentTime, setCurrentTime] = useState(new Date());
-  
+
   const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
+    getInbox(); // Cargar los mensajes recibidos al montar el componente
+    getOutbox(); // Cargar los mensajes enviados al montar el componente
+
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
@@ -25,29 +30,39 @@ function Inbox() {
 
   const navigate = useNavigate();
 
+  const getInbox = async () => {
+    try {
+      const inboxData = await getinbox(user[7]);
+      const formattedInbox = inboxData.map((message) => ({
+        sender: message[0],       // Nombre del remitente
+        subject: message[1],      // Asunto
+        body: message[2],         // Cuerpo del mensaje
+        timestamp: `${message[3]} ${message[4]}`, // Fecha y hora de envío
+      }));
+      setInbox(formattedInbox);
+    } catch (error) {
+      console.error("Error al obtener la bandeja de entrada:", error);
+    }
+  };
+
+  const getOutbox = async () => {
+    try {
+      const outboxData = await getoutbox(user[0]);
+      const formattedOutbox = outboxData.map((message) => ({
+        sender: message[0],       // Nombre del remitente
+        subject: message[3],      // Asunto
+        body: message[4],         // Cuerpo del mensaje
+        timestamp: `${message[5]} ${message[6]}`, // Fecha y hora de envío
+      }));
+      setOutbox(formattedOutbox); // Corregido: Usar setOutbox
+    } catch (error) {
+      console.error("Error al obtener la bandeja de salida:", error);
+    }
+  };
+
   const messages = {
-    recibidos: [
-      {
-        sender: 'Juan Pérez',
-        subject: 'Recordatorio de reunión',
-        body: 'No olvides la reunión de mañana a las 10am.',
-        timestamp: '10:30 AM',
-      },
-      {
-        sender: 'Ana Gómez',
-        subject: 'Actualización del proyecto',
-        body: 'El proyecto está en marcha y se completará a finales de la semana.',
-        timestamp: '9:15 AM',
-      },
-    ],
-    enviados: [
-      {
-        sender: 'Tú',
-        subject: 'Seguimiento',
-        body: 'Solo haciendo un seguimiento de nuestra conversación anterior.',
-        timestamp: '11:00 AM',
-      },
-    ]
+    recibidos: inbox,
+    enviados: outbox,
   };
 
   const handleOpenMessage = (message) => {
@@ -64,10 +79,10 @@ function Inbox() {
   };
 
   const handleLogout = () => {
-    // Eliminar información de sesión
-    localStorage.removeItem('userToken'); // Ejemplo de eliminación de token de sesión
+    localStorage.removeItem('userToken');
     navigate('/');
   };
+
   return (
     <div className="inbox">
       <AsideFolders onSelectFolder={setSelectedFolder} onCreateMessage={() => setIsCreatingMessage(true)} />

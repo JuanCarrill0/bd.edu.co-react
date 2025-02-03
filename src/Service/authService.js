@@ -71,3 +71,52 @@ export const saveDestinatario = async (destinatarioData) => {
     throw error;
   }
 };
+
+export const getMessages = async (userId, folder) => {
+  try {
+    const response = await axios.get(`${API_URL}/api/getMessages`, {
+      params: {
+         userId, 
+         folder // 'recibidos' o 'enviados'
+        }
+    });
+    return response.data.messages;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export const getinbox = async (correoalterno) => {
+  try {
+    const response = await axios.get(`${API_URL}/api/recibidos`, {
+      params: { correocontacto : correoalterno}
+    });
+    return response.data.inbox;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export const getoutbox = async (userId) => {
+  try {
+    const response = await axios.get(`${API_URL}/api/enviados`, {
+      params: { idUsuario: userId}
+    });
+    return response.data.inbox;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export const addAdjuntos = async (formData) => {
+  try {
+    const response = await axios.post(`${API_URL}/api/adjuntos`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}

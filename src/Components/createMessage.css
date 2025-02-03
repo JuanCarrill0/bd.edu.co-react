@@ -81,3 +81,53 @@
   background-color: #ccc;
   cursor: not-allowed;
 }
+
+/* Estilos para los contenedores de correos */
+.to-input,
+.cc-input,
+.coo-input {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+/* Estilos para cada correo añadido */
+.to-email,
+.cc-email,
+.coo-email {
+  background-color: #e0e0e0;
+  padding: 5px 10px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Estilos para el botón de eliminar */
+.buttonDelete {
+  background: none;
+  border: none;
+  color: red;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Estilos para el dropdown */
+.dropdown {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #ccc;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.dropdown li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.dropdown li:hover {
+  background-color: #f0f0f0;
+}
