@@ -89,8 +89,9 @@ export const getMessages = async (userId, folder) => {
 export const getinbox = async (correoalterno) => {
   try {
     const response = await axios.get(`${API_URL}/api/recibidos`, {
-      params: { correocontacto : correoalterno}
+      params: { correoContacto : correoalterno}
     });
+    console.log(response.data.inbox);
     return response.data.inbox;
   } catch (error) {
     throw error;
@@ -102,6 +103,7 @@ export const getoutbox = async (userId) => {
     const response = await axios.get(`${API_URL}/api/enviados`, {
       params: { idUsuario: userId}
     });
+    console.log(response.data.inbox);
     return response.data.inbox;
   } catch (error) {
     throw error;

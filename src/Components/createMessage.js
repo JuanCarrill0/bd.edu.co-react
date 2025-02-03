@@ -177,21 +177,15 @@ function CreateMessage({ onClose }) {
     const idCategoria = "PRI"; // Asumiendo un ID de categoría fijo
     const fechaAccion = new Date().toISOString().split('T')[0]; // Fecha actual en formato YYYY-MM-DD
     const horaAccion = new Date().toISOString().split('T')[1].split('.')[0]; // Hora actual en formato HH:MM:SS
-    const idMensaje = generateRandomMessageId(); // Generar un ID de mensaje aleatorio
+    let idMensaje; // Generar un ID de mensaje aleatorio
     console.log(user);
     console.log(idUsuario);
 
-    const formData = new FormData();
-    formData.append('idUsuario', idUsuario);
-    formData.append('idMensaje', idMensaje);
-    attachments.forEach((file, index) => {
-      formData.append("attachments", file);
-    });
  
-    
     try {
       const sendToRecipients = async (recipients,idTipoCopia) => {
       for (const recipient of recipients) {
+        idMensaje = generateRandomMessageId();
         console.log(recipient);
         // Buscar el contacto en la base de datos
         let contactResult;
@@ -226,7 +220,7 @@ function CreateMessage({ onClose }) {
             menIdMensaje: null
           });
           console.log('Message sent successfully:', response);
-          console.log('Destinatario:', contactResult.usuario[0]);
+          console.log('Destinatario:', contactResult[0][0]);
   
           // Guardar el destinatario
           const destinatarioData = {
@@ -234,18 +228,29 @@ function CreateMessage({ onClose }) {
             idUsuario, // Asumiendo que el ID del usuario está en la posición 0 del contacto
             idMensaje,
             idTipoCopia, // Asumiendo un ID de tipo de copia fijo
-            consecContacto: contactResult.usuario[0][0] // Asumiendo que el ID del contacto está en la posición 0 del contacto
+            consecContacto: contactResult[0][0] // Asumiendo que el ID del contacto está en la posición 0 del contacto
           };
           console.log('Destinatario:', destinatarioData);
           const destinatarioResponse = await saveDestinatario(destinatarioData);
           console.log('Destinatario saved successfully:', destinatarioResponse);
+          
+          //Envio de archivos adjuntos
+          if(attachments.length > 0){
+            //Datos de suformulario
+            const formData = new FormData();
+            formData.append('idUsuario', idUsuario);
+            formData.append('idMensaje', idMensaje);
+            attachments.forEach((file, index) => {
+              formData.append("attachments", file);
+            });
 
-          const adjuntoData = await addAdjuntos(formData);
-          if(adjuntoData.success){
-            console.log("Adjunto agregado correctamente");
-          }else{
-            console.log("Error al agregar adjunto");
-          }
+            const adjuntoData = await addAdjuntos(formData);
+            if(adjuntoData){
+              console.log("Adjunto agregado correctamente");
+            }else{
+              console.log("Error al agregar adjunto");
+            }
+          } 
         }
       }
     };
@@ -408,14 +413,19 @@ return (
             multiple
             onChange={(e) => setAttachments([...attachments, ...e.target.files])}
           />
-          <ul>
-            {attachments.map((file, index) => (
-              <li key={index}>
-                {file.name} 
-                <button type="button" onClick={() => handleRemoveAttachment(index)}>x</button>
-              </li>
-            ))}
-          </ul>
+            <ul>
+              {attachments.map((file, index) => {
+                const fileName = file.name;
+                const fileExtension = fileName.substring(fileName.lastIndexOf('.'));
+                const truncatedName = fileName.length > 30 ? `${fileName.substring(0, 30 - fileExtension.length)}${fileExtension}` : fileName;
+                return (
+                  <li key={index}>
+                    {truncatedName}
+                    <button type="button" onClick={() => handleRemoveAttachment(index)}>x</button>
+                  </li>
+                );
+              })}
+            </ul>
         </div>
 
         {/* Botones de enviar y cancelar */}
