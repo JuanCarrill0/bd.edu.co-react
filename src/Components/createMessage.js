@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getContacts, getContact, sendMessage, saveDestinatario, createContact, addAdjuntos } from '../Service/authService';
+import swal from 'sweetalert';
 import './createMessage.css';
 
 function CreateMessage({ onClose }) {
@@ -250,7 +251,7 @@ function CreateMessage({ onClose }) {
         const formData = new FormData();
         formData.append('idUsuario', idUsuario);
         formData.append('idMensaje', idMensaje);
-        attachments.forEach((file, index) => {
+        attachments.forEach((file) => {
           formData.append("attachments", file);
         });
         console.log('adjunto', formData);
@@ -261,7 +262,8 @@ function CreateMessage({ onClose }) {
           console.log("Error al agregar adjunto");
         }
       }
-  
+      //Alerta de mensaje enviado
+      swal("Éxito", "Mensaje enviado", "success");
       onClose(); // Cerrar el modal después de enviar el mensaje
     } catch (error) {
       console.error('Error sending message or saving destinatario:', error);
@@ -416,15 +418,15 @@ return (
             multiple
             onChange={(e) => setAttachments([...attachments, ...e.target.files])}
           />
-            <ul>
+            <ul className="attachments-list">
               {attachments.map((file, index) => {
                 const fileName = file.name;
                 const fileExtension = fileName.substring(fileName.lastIndexOf('.'));
                 const truncatedName = fileName.length > 30 ? `${fileName.substring(0, 30 - fileExtension.length)}${fileExtension}` : fileName;
                 return (
-                  <li key={index}>
+                  <li key={index} className="attachment-item">
                     {truncatedName}
-                    <button type="button" onClick={() => handleRemoveAttachment(index)}>x</button>
+                    <button type="button" className="buttonDelete" onClick={() => handleRemoveAttachment(index)}>x</button>
                   </li>
                 );
               })}
@@ -432,8 +434,10 @@ return (
         </div>
 
         {/* Botones de enviar y cancelar */}
-        <button type="submit">Enviar</button>
-        <button type="button" onClick={onClose}>Cancelar</button>
+        <div className='buttonsMessage'>
+          <button type="submit" className='submitMessage'>Enviar</button>
+          <button type="button" className="cancelMessage" onClick={onClose}>Cancelar</button>
+        </div>
       </form>
     </div>
   </div>

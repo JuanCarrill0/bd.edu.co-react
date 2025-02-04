@@ -21,8 +21,8 @@ function MessageDetail({ message, onClose, onReply }) {
             </ul>
           </div>
         )}
-        <button onClick={onReply}>Responder</button>
-        <button onClick={onClose}>Cerrar</button>
+        <button className="respondMessage" onClick={onReply}>Responder</button>
+        <button className="cancelMessage" onClick={onClose}>Cerrar</button>
       </div>
     </div>
   );

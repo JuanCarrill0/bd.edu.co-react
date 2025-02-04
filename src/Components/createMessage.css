@@ -1,133 +1,166 @@
 .create-message-background {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
   display: flex;
-  align-items: center;
   justify-content: center;
-  z-index: 999;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f2f5;
+  padding: 20px;
 }
 
 .create-message {
-  width: 50%;
-  background-color: white;
+  background-color: #ffffff;
   padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 460px;
 }
 
-.create-message form {
-  display: flex;
-  flex-direction: column;
+.create-message h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
 }
 
-.create-message .form-group {
+.form-group {
   margin-bottom: 15px;
 }
 
-.create-message .form-group label {
+.form-group label {
   display: block;
   margin-bottom: 5px;
+  font-weight: bold;
+  color: #555;
 }
 
-.create-message .form-group input,
-.create-message .form-group textarea {
+.form-group input,
+.form-group textarea {
   width: 100%;
-  padding: 8px;
-  box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.create-message .message-options {
-  list-style-type: none;
-  padding: 0;
-  display: flex;
-  gap: 10px;
-}
-
-.create-message .message-options li {
-  display: inline;
-}
-
-.create-message button {
-  margin-top: 10px;
   padding: 10px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
 }
 
-.create-message button[type="button"] {
-  background-color: #6c757d;
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
 }
 
-.create-message button:hover {
-  background-color: #0056b3;
-}
-
-.create-message button[type="button"]:hover {
-  background-color: #5a6268;
-}
-
-.create-message button[disabled] {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-/* Estilos para los contenedores de correos */
 .to-input,
 .cc-input,
 .coo-input {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
 }
 
-/* Estilos para cada correo añadido */
 .to-email,
 .cc-email,
 .coo-email {
-  background-color: #e0e0e0;
-  padding: 5px 10px;
-  border-radius: 15px;
   display: flex;
   align-items: center;
-  gap: 5px;
+  background-color: #e0e0e0;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 14px;
 }
 
-/* Estilos para el botón de eliminar */
 .buttonDelete {
-  background: none;
+  background-color: #ff4d4d;
+  color: white;
   border: none;
-  color: red;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  margin-left: 5px;
   cursor: pointer;
-  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Estilos para el dropdown */
+.buttonDelete:hover {
+  background-color: #ff1a1a;
+}
+
 .dropdown {
   list-style-type: none;
-  padding: 0;
   margin: 0;
-  border: 1px solid #ccc;
+  padding: 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fff;
   max-height: 150px;
   overflow-y: auto;
+  position: absolute;
+  z-index: 1000;
+  width: 460px;
 }
 
 .dropdown li {
-  padding: 8px;
+  padding: 10px;
   cursor: pointer;
+  font-size: 14px;
 }
 
 .dropdown li:hover {
   background-color: #f0f0f0;
+}
+
+.attachments-list {
+  list-style-type: none;
+  padding: 0;
+  margin-top: 10px;
+}
+
+.attachment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 5px;
+}
+
+.buttonsMessage {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.submitMessage,
+.cancelMessage {
+  padding: 10px 20px!important;
+  margin: 20px;
+  width: 200px;
+  height: 40px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.submitMessage {
+  background-color: #007bff;
+  color: white;
+}
+
+.submitMessage:hover {
+  background-color: #0056b3;
+}
+
+.cancelMessage {
+  background-color: #6c757d;
+  color: white;
+}
+
+.cancelMessage:hover {
+  background-color: #5a6268;
 }

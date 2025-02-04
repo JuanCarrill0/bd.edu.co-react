@@ -64,3 +64,15 @@
 .pagination span {
   font-size: 16px;
 }
+
+.logout-button{
+  margin: 10px auto;
+  width: 20%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}

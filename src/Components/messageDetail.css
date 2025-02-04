@@ -50,3 +50,8 @@
   .message-detail button + button:hover {
     background-color: #5a6268;
   }
+
+  .respondMessage, .cancelMessage{
+    width: 20%;
+    margin: 20px;
+  }

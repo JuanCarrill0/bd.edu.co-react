@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import ListMessaje from '../Components/listMessage';
 import AsideFolders from '../Components/asideFolders';
 import CreateMessage from '../Components/createMessage';
@@ -27,8 +26,6 @@ function Inbox() {
 
     return () => clearInterval(timer);
   }, []);
-
-  const navigate = useNavigate();
 
   const getInbox = async () => {
     try {
@@ -85,11 +82,6 @@ function Inbox() {
     setSelectedMessage(null);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('userToken');
-    navigate('/');
-  };
-
   return (
     <div className="inbox">
       <AsideFolders onSelectFolder={setSelectedFolder} onCreateMessage={() => setIsCreatingMessage(true)} />
@@ -100,7 +92,6 @@ function Inbox() {
         </div>
         <h2>{selectedFolder.charAt(0).toUpperCase() + selectedFolder.slice(1)}</h2>
         <ListMessaje messages={messages[selectedFolder]} onOpenMessage={handleOpenMessage} />
-        <button className="logout-button" onClick={handleLogout}>Cerrar Sesión</button>
       </div>
       {isCreatingMessage && <CreateMessage onClose={() => setIsCreatingMessage(false)} />}
       {selectedMessage && (

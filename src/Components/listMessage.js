@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import Messaje from './message';
 import './listMessage.css';
 
@@ -10,6 +12,8 @@ function ListMessaje({ messages, onOpenMessage }) {
   const indexOfLastMessage = currentPage * messagesPerPage;
   const indexOfFirstMessage = indexOfLastMessage - messagesPerPage;
   const currentMessages = messages.slice(indexOfFirstMessage, indexOfLastMessage);
+
+  const navigate = useNavigate();
 
   // Calcular el número total de páginas
   const totalPages = Math.ceil(messages.length / messagesPerPage);
@@ -24,6 +28,11 @@ function ListMessaje({ messages, onOpenMessage }) {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('userToken');
+    navigate('/');
   };
 
   return (
@@ -48,6 +57,7 @@ function ListMessaje({ messages, onOpenMessage }) {
           Siguiente
         </button>
       </div>
+      <button className="logout-button" onClick={handleLogout}>Cerrar Sesión</button>
     </div>
   );
 }

@@ -57,6 +57,6 @@
 }
 
 .message-destinatarios ul li {
-  list-style-type: disc;
+  list-style-type: none;
   margin-bottom: 3px;
 }

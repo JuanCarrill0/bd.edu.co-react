@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../Service/authService';
+import swal from 'sweetalert';
 import './login.css';
 
 function Login() {
@@ -13,18 +14,19 @@ function Login() {
     event.preventDefault();
     try {
       const response = await login(email, password);
-      alert(response.message);
+      swal("Éxito", "Sesión iniciada", "success");
       //Guardar la informacion del usuario en el local storage
       localStorage.setItem('user', JSON.stringify(response.user));
       navigate('/inbox');
     } catch (error) {
-      alert('Credenciales incorrectas');
+      swal("Error", "Credenciales incorrectas", "error");
     }
   };
 
   return (
     <div className='login'>
         <div className="login-container">
+            <img src="https://s3.amazonaws.com/s3.timetoast.com/public/uploads/photo/12696877/image/074e21041c595d8d5175b6d79d5f66c7" alt="Logo U Distrital" className="login-logo" />
             <form onSubmit={handleSubmit}>
                 <h2>Iniciar Sesión</h2>
                 <div className="form-group">
