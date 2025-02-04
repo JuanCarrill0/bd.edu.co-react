@@ -177,93 +177,96 @@ function CreateMessage({ onClose }) {
     const idCategoria = "PRI"; // Asumiendo un ID de categoría fijo
     const fechaAccion = new Date().toISOString().split('T')[0]; // Fecha actual en formato YYYY-MM-DD
     const horaAccion = new Date().toISOString().split('T')[1].split('.')[0]; // Hora actual en formato HH:MM:SS
-    let idMensaje; // Generar un ID de mensaje aleatorio
+    const idMensaje = generateRandomMessageId(); // Generar un ID de mensaje aleatorio (único para todos los destinatarios)
+  
     console.log(user);
     console.log(idUsuario);
-
- 
+  
     try {
-      const sendToRecipients = async (recipients,idTipoCopia) => {
-      for (const recipient of recipients) {
-        idMensaje = generateRandomMessageId();
-        console.log(recipient);
-        // Buscar el contacto en la base de datos
-        let contactResult;
-        try {
-          contactResult = await getContact(recipient, idUsuario);
-          console.log('Contact found:', contactResult);
-        } catch (error) {
-          if (error.response && error.response.status === 404) {
-            console.log('Contact not found, creating new contact');
-            await createContact(recipient, idUsuario);
-            // Vuelve a buscar el contacto después de crearlo
+      // Enviar el mensaje una sola vez
+      const response = await sendMessage({
+        idUsuario,
+        idMensaje,
+        idPais,
+        idTipoCarpeta,
+        idCategoria,
+        asunto: subject,
+        cuerpoMensaje: body,
+        fechaAccion,
+        horaAccion,
+        menIdUsuario: null,
+        menIdMensaje: null,
+      });
+      console.log('Message sent successfully:', response);
+  
+      // Función para guardar destinatarios
+      const saveRecipients = async (recipients, idTipoCopia) => {
+        for (const recipient of recipients) {
+          console.log(recipient);
+          // Buscar el contacto en la base de datos
+          let contactResult;
+          try {
             contactResult = await getContact(recipient, idUsuario);
-          } else {
-            throw error;
+            console.log('Contact found:', contactResult);
+          } catch (error) {
+            if (error.response && error.response.status === 404) {
+              console.log('Contact not found, creating new contact');
+              await createContact(recipient, idUsuario);
+              // Vuelve a buscar el contacto después de crearlo
+              contactResult = await getContact(recipient, idUsuario);
+            } else {
+              throw error;
+            }
+          }
+          console.log('Contact found or created:', contactResult);
+  
+          if (contactResult.usuario !== 0 || contactResult.usuario.length > 0) {
+            // Guardar el destinatario
+            const destinatarioData = {
+              idPais,
+              idUsuario,
+              idMensaje, // Usar el mismo idMensaje para todos los destinatarios
+              idTipoCopia, // Tipo de copia (CO o COO)
+              consecContacto: contactResult[0][0], // ID del contacto
+            };
+            console.log('Destinatario:', destinatarioData);
+            const destinatarioResponse = await saveDestinatario(destinatarioData);
+            console.log('Destinatario saved successfully:', destinatarioResponse);
           }
         }
-        console.log('Contact found or created:', contactResult);
+      };
   
-        if (contactResult.usuario !== 0 || contactResult.usuario.length > 0) {
-          // Enviar el mensaje
-          const response = await sendMessage({
-            idUsuario,
-            idMensaje,
-            idPais,
-            idTipoCarpeta,
-            idCategoria,
-            asunto: subject,
-            cuerpoMensaje: body,
-            fechaAccion,
-            horaAccion,
-            menIdUsuario: null,
-            menIdMensaje: null
-          });
-          console.log('Message sent successfully:', response);
-          console.log('Destinatario:', contactResult[0][0]);
+      // Guardar destinatarios principales (TO)
+      await saveRecipients(to, "CO");
   
-          // Guardar el destinatario
-          const destinatarioData = {
-            idPais,
-            idUsuario, // Asumiendo que el ID del usuario está en la posición 0 del contacto
-            idMensaje,
-            idTipoCopia, // Asumiendo un ID de tipo de copia fijo
-            consecContacto: contactResult[0][0] // Asumiendo que el ID del contacto está en la posición 0 del contacto
-          };
-          console.log('Destinatario:', destinatarioData);
-          const destinatarioResponse = await saveDestinatario(destinatarioData);
-          console.log('Destinatario saved successfully:', destinatarioResponse);
-          
-          //Envio de archivos adjuntos
-          if(attachments.length > 0){
-            //Datos de suformulario
-            const formData = new FormData();
-            formData.append('idUsuario', idUsuario);
-            formData.append('idMensaje', idMensaje);
-            attachments.forEach((file, index) => {
-              formData.append("attachments", file);
-            });
-
-            const adjuntoData = await addAdjuntos(formData);
-            if(adjuntoData){
-              console.log("Adjunto agregado correctamente");
-            }else{
-              console.log("Error al agregar adjunto");
-            }
-          } 
+      // Guardar destinatarios de copia (CC)
+      await saveRecipients(cc, "CO");
+  
+      // Guardar destinatarios de copia oculta (CCO)
+      await saveRecipients(coo, "COO");
+  
+      // Enviar archivos adjuntos (si existen)
+      if (attachments.length > 0) {
+        const formData = new FormData();
+        formData.append('idUsuario', idUsuario);
+        formData.append('idMensaje', idMensaje);
+        attachments.forEach((file, index) => {
+          formData.append("attachments", file);
+        });
+        console.log('adjunto', formData);
+        const adjuntoData = await addAdjuntos(formData);
+        if (adjuntoData) {
+          console.log("Adjunto agregado correctamente");
+        } else {
+          console.log("Error al agregar adjunto");
         }
       }
-    };
-
-    await sendToRecipients(to, "CO"); // Enviar a los destinatarios principales
-    await sendToRecipients(cc, "CO"); // Enviar a los destinatarios de copia
-    await sendToRecipients(coo, "COO"); // Enviar a los destinatarios de copia oculta
   
-    onClose();
-  } catch (error) {
-    console.error('Error sending message or saving destinatario:', error);
-  }
-};
+      onClose(); // Cerrar el modal después de enviar el mensaje
+    } catch (error) {
+      console.error('Error sending message or saving destinatario:', error);
+    }
+  };
 
 return (
   <div className="create-message-background">

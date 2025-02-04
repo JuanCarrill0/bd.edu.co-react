@@ -91,7 +91,7 @@ export const getinbox = async (correoalterno) => {
     const response = await axios.get(`${API_URL}/api/recibidos`, {
       params: { correoContacto : correoalterno}
     });
-    console.log(response.data.inbox);
+    console.log('INBOX', response.data.inbox);
     return response.data.inbox;
   } catch (error) {
     throw error;
@@ -103,8 +103,8 @@ export const getoutbox = async (userId) => {
     const response = await axios.get(`${API_URL}/api/enviados`, {
       params: { idUsuario: userId}
     });
-    console.log(response.data.inbox);
-    return response.data.inbox;
+    console.log('OUTBOX', response.data.enviados);
+    return response.data.enviados;
   } catch (error) {
     throw error;
   }

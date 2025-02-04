@@ -31,10 +31,11 @@ function ListMessaje({ messages, onOpenMessage }) {
       {currentMessages.map((message, index) => (
         <div key={index} onClick={() => onOpenMessage(message)}>
           <Messaje
-            sender={message.sender}
-            subject={message.subject}
-            body={message.body}
-            timestamp={message.timestamp}
+            sender={message.sender || 'Tú'} // Si no hay remitente, es un mensaje enviado
+            subject={message.subject || message.asunto}
+            body={message.body || message.cuerpoMensaje}
+            timestamp={message.timestamp || message.fechaAccion}
+            destinatarios={message.destinatarios} // Pasar la lista de destinatarios
           />
         </div>
       ))}

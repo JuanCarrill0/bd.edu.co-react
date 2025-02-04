@@ -41,3 +41,22 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.message-destinatarios {
+  margin-top: 10px;
+}
+
+.message-destinatarios strong {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.message-destinatarios ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.message-destinatarios ul li {
+  list-style-type: disc;
+  margin-bottom: 3px;
+}

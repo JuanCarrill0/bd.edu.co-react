@@ -34,12 +34,13 @@ function Inbox() {
     try {
       const inboxData = await getinbox(user[7]);
       const formattedInbox = inboxData.map((message) => ({
-        sender: message[0],       // Nombre del remitente
-        subject: message[1],      // Asunto
-        body: message[2],         // Cuerpo del mensaje
+        sender: message[4],       // Nombre del remitente
+        subject: message[0],      // Asunto
+        body: message[1],         // Cuerpo del mensaje
         timestamp: `${message[3]}`, // Fecha y hora de envío
       }));
       setInbox(formattedInbox);
+      console.log(formattedInbox);
     } catch (error) {
       console.log("Bandeja vacia o error al obtener la bandeja de salida:", error);
     }
@@ -49,14 +50,20 @@ function Inbox() {
     try {
       const outboxData = await getoutbox(user[0]);
       const formattedOutbox = outboxData.map((message) => ({
-        sender: message[0],       // Nombre del remitente
-        subject: message[2],      // Asunto
-        body: message[3],         // Cuerpo del mensaje
-        timestamp: `${message[4]} ${message[6]}`, // Fecha y hora de envío
+        idMensaje: message.idMensaje,
+        asunto: message.asunto,
+        cuerpoMensaje: message.cuerpoMensaje,
+        fechaAccion: message.fechaAccion,
+        horaAccion: message.horaAccion,
+        destinatarios: message.destinatarios.map((dest) => ({
+          nombre: dest.nombre,
+          correo: dest.correo,
+          tipoCopia: dest.tipoCopia,
+        })),
       }));
-      setOutbox(formattedOutbox); // Corregido: Usar setOutbox
+      setOutbox(formattedOutbox);
     } catch (error) {
-      console.log("Bandeja vacia o error al obtener la bandeja de salida:", error);
+      console.log("Bandeja vacía o error al obtener la bandeja de salida:", error);
     }
   };
 
